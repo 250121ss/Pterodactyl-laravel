@@ -125,12 +125,54 @@ sudo a2enmod pterodactyl.conf
 sudo service apache2 restart
 
 #
+=== Installing Docker  ====
+
+ sudo dmidecode -s system-manufacturer
+=== Docer ==
+curl -sSL https://get.docker.com/ | CHANNEL=stable bash
+
+sudo systemctl enable --now docker
+GRUB_CMDLINE_LINUX_DEFAULT="swapaccount=1"
+
+
 === Installing Wings  ====
 
 sudo mkdir -p /etc/pterodactyl
-curl -L -o /usr/local/bin/wings "https://github.com/pterodactyl/wings/releases/latest/download/wings_linux_$([[ "$(uname -m)" == "x86_64" ]] && echo "amd64" || echo "arm64")"
+sudo curl -L -o /usr/local/bin/wings "https://github.com/pterodactyl/wings/releases/latest/download/wings_linux_$([[ "$(uname -m)" == "x86_64" ]] && echo "amd64" || echo "arm64")"
 sudo chmod u+x /usr/local/bin/wings
 
+ 
+=== #  Starting Wings   ===
+
+sudo wings --debug
+
+sudo vi /etc/systemd/system/wings.service
+
+
+
+[Unit]
+Description=Pterodactyl Wings Daemon
+After=docker.service
+Requires=docker.service
+PartOf=docker.service
+
+[Service]
+User=root
+WorkingDirectory=/etc/pterodactyl
+LimitNOFILE=4096
+PIDFile=/var/run/wings/daemon.pid
+ExecStart=/usr/local/bin/wings
+Restart=on-failure
+StartLimitInterval=180
+StartLimitBurst=30
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target
+
+
+
+====
 
 sudo systemctl enable --now wings
 
