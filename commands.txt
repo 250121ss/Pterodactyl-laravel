@@ -8,7 +8,7 @@ sudo apt install mysql-server
 
 === Mysql Setup ==
 
-mysql -u root -p
+sudo mysql
 
 # Remember to change 'yourPassword' below to be a unique password
 CREATE USER 'pterodactyl'@'127.0.0.1' IDENTIFIED BY 'yourPassword';
@@ -29,8 +29,8 @@ sudo vi /etc/php/8.1/apache2/php.ini
 max_execution_time = -1
 max_input_time = -1
 memory_limit = -1
-post_max_size = 10G 
-upload_max_filesize = 8G
+post_max_size = 3000M 
+upload_max_filesize = 2048M
 
 ===
 sudo vi /etc/apache2/mods-enabled/dir.conf
@@ -43,9 +43,16 @@ sudo systemctl restart php8.1-fpm.service
 sudo phpenmod mbstring
 sudo a2enmod rewrite 
 
+
 sudo vi /etc/apache2/apache2.conf
 
 None -> All
+
+== Redis ==
+
+sudo apt-get install -y redis-server
+sudo service redis-server start
+
 === Composer ===
 
 sudo apt-get install composer	
@@ -69,14 +76,24 @@ curl -Lo panel.tar.gz https://github.com/pterodactyl/panel/releases/latest/downl
 tar -xzvf panel.tar.gz
 
 
+=== SymLink ===
+
+sudo ln -sf /home/ubuntu/pterodactyl-path   /var/www/html
+==
+
 cp .env.example .env
 composer install --no-dev --optimize-autoloader
+
+
 
 php artisan optimize:clear
 php artisan key:generate
 php artisan p:environment:setup
-php artisan p:environment:database
-php artisan p:environment:mail
+php artisan p:user:make
+sudo composer dump-autoload
+php artisan storage:link    
+php artisan config:cache
+sudo service apache2 restart
 
 ==== # Database Setup ===
 
@@ -90,12 +107,11 @@ chmod -R 755 storage/* bootstrap/cache/
 
 sudo chmod -R 755 /home/ubuntu
 
+sudo chmod -R 777 .env
+
+
 # If using NGINX or Apache (not on CentOS)
 chown -R www-data:www-data pterodactyl/*
-
-# If using Apache on CentOS
-chown -R apache:apache pterodactyl/*
-
 
 === virutal Host conf ==
 
