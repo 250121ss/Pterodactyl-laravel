@@ -1,1 +1,148 @@
 ==---====  Pterodactyl Panel  =-=--= 
+
+=== LAMP Installation ===
+
+sudo apt update
+sudo apt install apache2
+sudo apt install mysql-server
+
+=== Mysql Setup ==
+
+mysql -u root -p
+
+# Remember to change 'yourPassword' below to be a unique password
+CREATE USER 'pterodactyl'@'127.0.0.1' IDENTIFIED BY 'yourPassword';
+CREATE DATABASE panel;
+GRANT ALL PRIVILEGES ON panel.* TO 'pterodactyl'@'127.0.0.1' WITH GRANT OPTION;
+exit
+
+===============
+
+sudo add-apt-repository ppa:ondrej/php
+sudo apt update
+sudo apt install php8.1 -y
+sudo apt-get install -y php8.1-cli php8.1-common php8.1-mysql php8.1-zip php8.1-gd php8.1-mbstring php8.1-curl php8.1-xml php8.1-bcmath php8.1-redis php8.1-fpm php8.1-intl php8.1-zip php8.1-soap php8.1-opcache
+===
+phpmyadmin upload size incress conf
+
+sudo vi /etc/php/8.1/apache2/php.ini
+max_execution_time = -1
+max_input_time = -1
+memory_limit = -1
+post_max_size = 10G 
+upload_max_filesize = 8G
+
+===
+sudo vi /etc/apache2/mods-enabled/dir.conf
+
+Replace index.php  , index.html
+
+==
+sudo systemctl restart php8.1-fpm.service
+
+sudo phpenmod mbstring
+sudo a2enmod rewrite 
+
+sudo vi /etc/apache2/apache2.conf
+
+None -> All
+=== Composer ===
+
+sudo apt-get install composer	
+
+cd ~
+curl -sS https://getcomposer.org/installer -o composer-setup.php
+sudo php composer-setup.php --install-dir=/usr/local/bin --filename=composer
+
+_______________
+
+
+=== #Download Files ====
+
+
+mkdir pterodactyl
+
+cd pterodactyl
+
+curl -Lo panel.tar.gz https://github.com/pterodactyl/panel/releases/latest/download/panel.tar.gz
+
+tar -xzvf panel.tar.gz
+
+
+cp .env.example .env
+composer install --no-dev --optimize-autoloader
+
+php artisan optimize:clear
+php artisan key:generate
+php artisan p:environment:setup
+php artisan p:environment:database
+php artisan p:environment:mail
+
+==== # Database Setup ===
+
+php artisan migrate --seed 
+
+php artisan p:user:make
+
+=== permission ==
+
+chmod -R 755 storage/* bootstrap/cache/
+
+sudo chmod -R 755 /home/ubuntu
+
+# If using NGINX or Apache (not on CentOS)
+chown -R www-data:www-data pterodactyl/*
+
+# If using Apache on CentOS
+chown -R apache:apache pterodactyl/*
+
+
+=== virutal Host conf ==
+
+
+cd /etc/apache2/site-availble 
+
+sudo cp 000-default.conf   pterodactyl.conf
+
+sudo a2enmod pterodactyl.conf
+
+sudo service apache2 restart
+
+#
+=== Installing Wings  ====
+
+sudo mkdir -p /etc/pterodactyl
+curl -L -o /usr/local/bin/wings "https://github.com/pterodactyl/wings/releases/latest/download/wings_linux_$([[ "$(uname -m)" == "x86_64" ]] && echo "amd64" || echo "arm64")"
+sudo chmod u+x /usr/local/bin/wings
+
+
+sudo systemctl enable --now wings
+
+sudo systemctl restart wings
+
+sudo systemctl status wings
+
+
+
+===
+
+    Panel:
+        HTTP: 80
+        HTTPS: 443
+
+    Wings (daemon for managing game servers):
+        TCP: 8080
+        TCP: 2022 (for managing Docker containers)
+
+    MySQL (database):
+        TCP: 3306
+
+    Redis (in-memory data structure store):
+        TCP: 6379
+
+    SFTP (secure file transfer protocol for uploading server files):
+        TCP: 2022
+
+
+
+
