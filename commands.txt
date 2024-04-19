@@ -201,6 +201,13 @@ sudo systemctl status wings
     SFTP (secure file transfer protocol for uploading server files):
         TCP: 2022
 
+smtp
+
+SMTP, which stands for Simple Mail Transfer Protocol, typically uses port 25 for communication between mail servers. However, other ports can also be used for SMTP, such as:
+
+    Port 587: This is the submission port, commonly used for email clients (e.g., Outlook, Thunderbird) to send emails to a mail server.
+    Port 465: This port is often used for SMTP over SSL/TLS, also known as SMTPS.
+
 
 
 
