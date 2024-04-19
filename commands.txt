@@ -94,7 +94,6 @@ composer install --no-dev --optimize-autoloader
 php artisan optimize:clear
 php artisan key:generate
 php artisan p:environment:setup
-php artisan p:user:make
 sudo composer dump-autoload
 php artisan storage:link    
 php artisan config:cache
@@ -121,7 +120,7 @@ chown -R www-data:www-data pterodactyl/*
 === virutal Host conf ==
 
 
-cd /etc/apache2/site-availble 
+cd /etc/apache2/sites-available
 
 sudo cp 000-default.conf   pterodactyl.conf
 
