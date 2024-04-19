@@ -1,5 +1,10 @@
 ==---====  Pterodactyl Panel  =-=--= 
 
+#           YouTube:  https://www.youtube.com/@linuxnetworkinghelp 
+#
+#           Please Subscribe   === 
+#-------------------------------------------------
+
 === LAMP Installation ===
 
 sudo apt update
